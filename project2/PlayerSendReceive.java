@@ -26,6 +26,8 @@ public class PlayerSendReceive {
     private static void startGame(){
         ClientWindow window = new ClientWindow();
     }
+
+
     private static void startTCPReceiver() {
         try (ServerSocket serverSocket = new ServerSocket(TCP_PORT)) {
             System.out.println("TCP Receiver started. Listening on port " + TCP_PORT);
@@ -48,7 +50,7 @@ public class PlayerSendReceive {
             InetAddress address = InetAddress.getByName(IP);
 
             while (true) {
-                String message = "hello";
+                String message = "hello " + clientID;
                 byte[] buffer = message.getBytes();
 
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, UDP_PORT);
