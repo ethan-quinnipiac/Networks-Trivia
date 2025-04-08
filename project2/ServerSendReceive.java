@@ -46,6 +46,10 @@ public class ServerSendReceive {
                 String[] segmented = received.split(" ");
                 if(segmented[0].equals("buzz") && hasSent == false){
                     System.out.println("received from " + segmented[1]);
+                    queue.offer("ack " + segmented[1]);
+                    hasSent = true;
+                }else if(segmented[0].equals("buzz") && hasSent == true){
+                    queue.offer("negative-ack " + segmented[1]);
                 }
             }
         } catch (IOException e) {
@@ -63,9 +67,19 @@ public class ServerSendReceive {
                         System.out.println("Server: Connected to client TCP at " + clientIP + ":" + TCP_PORT);
                         
                         while (true) {
-                            out.println("hello from server");
-                            System.out.println("Server: TCP Sent to " + clientIP + ": hello from server");
                             Thread.sleep(1000);
+
+                            if(queue.isEmpty() == false){
+                                String step = queue.poll();
+                                System.out.println("trying to send");
+                                if(step.split(" ")[0].equals("ack")){
+                                    out.println("ack " + step.split(" ")[1]);
+                                    System.out.println("sent out ack");
+                                }else if(step.split(" ")[0].equals("negative-ack")){
+                                    out.println("negative-ack " + step.split(" ")[1]);
+                                    System.out.println("sent out negative-ack");
+                                }
+                            }
                         }
 
                     } catch (Exception e) {
