@@ -1,3 +1,4 @@
+package project2;
 /*
  * Ethan Lanier
  * This is the Game class to manage the players and flow of the game
