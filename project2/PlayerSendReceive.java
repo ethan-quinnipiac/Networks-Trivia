@@ -8,6 +8,7 @@ public class PlayerSendReceive {
     private static final String IP = "127.0.0.1"; // Localhost for testing
     private static final int UDP_PORT = 5000;
     private static final int TCP_PORT = 6000;
+    private static final int clientID = 1;
 
     public static void main(String[] args) {
         ExecutorService executor = Executors.newFixedThreadPool(3);
