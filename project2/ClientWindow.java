@@ -3,7 +3,6 @@ package project2;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.Timer;
@@ -22,8 +21,6 @@ public class ClientWindow implements ActionListener
 	
 	private JFrame window;
 	
-	private static SecureRandom random = new SecureRandom();
-	
 	public static int answer;
 	public static int finalAnswer = -1;
 
@@ -37,7 +34,7 @@ public class ClientWindow implements ActionListener
 		window = new JFrame("Trivia");
 		question = new JLabel("Q1. This is a sample question"); // represents the question
 		window.add(question);
-		question.setBounds(10, 5, 350, 100);;
+		question.setBounds(10, 5, 350, 100);
 		
 		options = new JRadioButton[4];
 		optionGroup = new ButtonGroup();
@@ -57,7 +54,6 @@ public class ClientWindow implements ActionListener
 		Timer t = new Timer();  // event generator
 		t.schedule(clock, 0, 1000); // clock is called every second
 		window.add(timer);
-		
 		
 		score = new JLabel("SCORE"); // represents the score
 		score.setBounds(50, 250, 100, 20);

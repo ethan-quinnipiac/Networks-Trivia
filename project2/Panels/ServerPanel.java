@@ -3,7 +3,9 @@ package project2.Panels;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -114,6 +116,16 @@ public class ServerPanel implements ActionListener {
         this.stopAccepting();
         this.drawKillSwitches();
         this.serverLogic.startGameLogic();
+        String message = "Starting Game";
+        for (String clientID: clientIDs) {
+            try {
+                DataOutputStream output = new DataOutputStream(new BufferedOutputStream(clientSockets.get(clientID).getOutputStream()));
+                output.writeUTF(message);
+                output.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void drawKillSwitches() {
