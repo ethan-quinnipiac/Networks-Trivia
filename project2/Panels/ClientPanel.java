@@ -1,8 +1,8 @@
 package project2.Panels;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -11,18 +11,22 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import project2.HostIP;
+import project2.GameWindow;
 
-public class ClientPanel implements ActionListener {
+public class ClientPanel {
+    private GameWindow gameWindow;
     private JPanel panel;
     private JLabel connectionStatus;
+    private boolean gameHasStarted;
 
     private String clientID;
-    private Thread TCPConnector;
+    private Thread TCPConnecter;
     private Socket clientSocket;
     public static final HostIP HOST_IP = new HostIP();
     
-    public ClientPanel() {
+    public ClientPanel(GameWindow gameWindow) {
+        this.gameWindow = gameWindow;
+        this.gameHasStarted = false;
         this.panel = new JPanel();
 
         this.connectionStatus = new JLabel("Waiting to connect to host.");
@@ -35,7 +39,7 @@ public class ClientPanel implements ActionListener {
 		this.panel.setVisible(false);
 
 
-        this.TCPConnector = new Thread(() -> {
+        this.TCPConnecter = new Thread(() -> {
             while (this.clientSocket == null) {
                 try {
                     this.clientSocket = new Socket(HOST_IP.getHostIP(), ServerPanel.TCP_PORT);
@@ -48,21 +52,30 @@ public class ClientPanel implements ActionListener {
                     e.printStackTrace();
                 }
             }
+
+            while (!gameHasStarted) {
+                try {
+                    DataInputStream input = new DataInputStream(new BufferedInputStream(this.clientSocket.getInputStream()));
+                    String message = input.readUTF();
+                    if (message.equals("Starting Game")) {
+                        gameHasStarted = true;
+                        this.gameWindow.changePanel(GameWindow.GAME_PANEL);
+                        this.gameWindow.getGamePanel().startGame(clientID, clientSocket);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         });
     }
 
     public JPanel getPanel() {
         return this.panel;
     }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        
-    }
     
     public void claimAnID() {
         clientID = JOptionPane.showInputDialog("Please enter a name for yourself.");
         this.connectionStatus.setText("Waiting to connect Player " + clientID + " to host.");
-        this.TCPConnector.start();
+        this.TCPConnecter.start();
     }
 }

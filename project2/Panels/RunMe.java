@@ -1,4 +1,6 @@
-package project2;
+package project2.Panels;
+
+import project2.GameWindow;
 
 public class RunMe {
 

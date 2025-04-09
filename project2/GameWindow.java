@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import project2.Panels.ClientPanel;
+import project2.Panels.GamePanel;
 import project2.Panels.ServerPanel;
 import project2.Panels.StartPanel;
 
@@ -16,9 +17,11 @@ public class GameWindow {
     private CardLayout cardLayout;
     private ServerPanel serverPanelObject;
     private ClientPanel clientPanelObject;
+    private GamePanel gamePanelObject;
     public static final String START_PANEL = "Start Panel";
     public static final String CLIENT_PANEL = "Client Panel";
     public static final String SERVER_PANEL = "Server Panel";
+    public static final String GAME_PANEL = "Game Panel";
     
     public GameWindow() {
         JOptionPane.showMessageDialog(window, "Welcome to our trivia game!");
@@ -31,14 +34,17 @@ public class GameWindow {
         cardLayout = (CardLayout) cards.getLayout();
 
         JPanel startPanel = new StartPanel(this).getPanel();
-        this.clientPanelObject = new ClientPanel();
+        this.clientPanelObject = new ClientPanel(this);
         JPanel clientPanel = clientPanelObject.getPanel();
         this.serverPanelObject = new ServerPanel();
         JPanel serverPanel = serverPanelObject.getPanel();
+        this.gamePanelObject = new GamePanel();
+        JPanel gamePanel = gamePanelObject.getPanel();
 
         cards.add(startPanel, START_PANEL);
         cards.add(clientPanel, CLIENT_PANEL);
         cards.add(serverPanel, SERVER_PANEL);
+        cards.add(gamePanel, GAME_PANEL);
 
         window.setSize(400, 400);
         window.setBounds(50, 50, 400, 400);
@@ -59,5 +65,9 @@ public class GameWindow {
 
     public ClientPanel getClientPanel() {
         return this.clientPanelObject;
+    }
+
+    public GamePanel getGamePanel() {
+        return this.gamePanelObject;
     }
 }
