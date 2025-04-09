@@ -8,7 +8,7 @@ public class PlayerSendReceive {
     private static final String IP = "127.0.0.1"; // Localhost for testing
     private static final int UDP_PORT = 5000;
     private static final int TCP_PORT = 6000;
-    private static final int clientID = 1;
+    private static final int clientID = 2;
 
     public static void main(String[] args) {
         ExecutorService executor = Executors.newFixedThreadPool(3);
@@ -26,6 +26,8 @@ public class PlayerSendReceive {
     private static void startGame(){
         ClientWindow window = new ClientWindow();
     }
+
+
     private static void startTCPReceiver() {
         try (ServerSocket serverSocket = new ServerSocket(TCP_PORT)) {
             System.out.println("TCP Receiver started. Listening on port " + TCP_PORT);
@@ -35,7 +37,10 @@ public class PlayerSendReceive {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String received;
             while ((received = in.readLine()) != null) {
-                System.out.println("TCP Received: " + received);
+                if(received.split(" ")[1].equals(Integer.toString(clientID))){
+                    System.out.println("TCP Received: " + received);
+                }
+                
             }
 
         } catch (IOException e) {
@@ -48,7 +53,7 @@ public class PlayerSendReceive {
             InetAddress address = InetAddress.getByName(IP);
 
             while (true) {
-                String message = "hello";
+                String message = "buzz " + clientID;
                 byte[] buffer = message.getBytes();
 
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, UDP_PORT);
