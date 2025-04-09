@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.TimerTask;
 import java.util.Timer;
 import javax.swing.*;
@@ -155,6 +156,26 @@ public class ClientWindow implements ActionListener
 			duration--;
 			window.repaint();
 		}
+	}
+
+	// this method updates the question and options on the window
+	public void displayQuestion(Question questionObj) {
+		// Update the question label
+		question.setText(questionObj.getQuestionText());
+
+		// Update the radio button options
+		List<String> optionsList = questionObj.getOptions();
+		for (int i = 0; i < options.length; i++) {
+			options[i].setText(optionsList.get(i));
+			options[i].setEnabled(true); // Enable the options for selection
+		}
+
+		// Reset the button states
+		poll.setEnabled(true);
+		submit.setEnabled(false);
+
+		// Reset the timer (if needed)
+		timer.setText("15"); // Example: Reset to 15 seconds for polling
 	}
 	
 }

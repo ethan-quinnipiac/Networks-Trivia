@@ -26,14 +26,17 @@ public class Game {
     // Timer Executors
     private ScheduledExecutorService timerExecutor;
 
+    private ClientWindow clientWindow; // Reference to the ClientWindow
+
     // Constructor
-    public Game(List<Question> questionPool) {
+    public Game(List<Question> questionPool, ClientWindow clientWindow) {
         this.players = new ArrayList<>();
         this.questions = new LinkedList<>(questionPool);
         this.currentQuestionIndex = 0;
         this.isPollingActive = false;
         this.isAnsweringActive = false;
         this.timerExecutor = Executors.newScheduledThreadPool(1);
+        this.clientWindow = clientWindow; // Initialize the ClientWindow
     }
 
     // Add a player to the game
@@ -74,11 +77,9 @@ public class Game {
         startPollingTimer();
     }
 
-    // Broadcast a question to all players
+    // Broadcast a question to the ClientWindow
     private void broadcastQuestion(Question question) {
-        for (Player player : players) {
-            player.receiveQuestion(question);
-        }
+        clientWindow.displayQuestion(question); // Update the GUI with the question
     }
 
     // Start the polling timer
