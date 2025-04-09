@@ -5,6 +5,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
+/*
+ * Coded by Kyle Macdonald
+ * Ran by the player to start the game
+ * Prerequisite: Server must be running, questions txt file must be present. ID must be set
+ * Output: Trivia game window with terminal as output
+ */
+
 public class PlayerSendReceive {
 
     private static final String IP = "127.0.0.1"; // Localhost for testing
@@ -15,7 +22,9 @@ public class PlayerSendReceive {
     private static final ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<>();
     private static boolean answering = false;
     private static int finalAnswer = -1234;
-
+    private static QuestionMaker q = new QuestionMaker();
+    private static Question[] questions = q.makeQuestions();
+    private static Player player = new Player(Integer.toString(clientID));
     public static void main(String[] args) {
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
@@ -30,11 +39,7 @@ public class PlayerSendReceive {
 
 
     private static void startGame(){
-        List<Question> questionPool = Arrays.asList(
-            new Question("What is the capital of France?", Arrays.asList("Berlin", "Madrid", "Paris", "Rome"), 2),
-            new Question("What is 2 + 2?", Arrays.asList("3", "4", "5", "6"), 1)
-        );
-
+        List<Question> questionPool = Arrays.asList(questions);
         // Create the ClientWindow
         ClientWindow clientWindow = new ClientWindow();
 
@@ -49,6 +54,10 @@ public class PlayerSendReceive {
             if(clientWindow.finalAnswer == 0){
                 queue.add("poll");
                 clientWindow.finalAnswer = -1;
+            }
+            if(queue.peek() == "next"){
+                queue.poll();
+                game.nextQuestion();
             }
         }
         } catch(InterruptedException e){
@@ -69,16 +78,27 @@ public class PlayerSendReceive {
             String received;
             while ((received = in.readLine()) != null) {
                 String[] receivedArr = received.split(" ");
+                if(receivedArr.length != 1){
                 if(receivedArr[1].equals(Integer.toString(clientID))){
                     System.out.println("TCP Received: " + received);
                     if(receivedArr[0].equals("ack")){
                         answering = true;
                     }else if(receivedArr[0].equals("negative-ack")){
                         System.out.println("negative-ack");
+                    }else if(receivedArr[0].equals("correct")){
+                        System.out.println("correct! +10");
+                        player.updateScore(10);
+                        answering = false;
+                        
+                    }else if(receivedArr[0].equals("wrong")){
+                        System.out.println("wrong! -10");
+                        player.updateScore(-10);
+                        answering = false;
                     }
                 }
+            }
                 if(receivedArr[0].equals("next")){
-
+                    queue.offer("next");
                 }
             }
 
@@ -92,7 +112,7 @@ public class PlayerSendReceive {
             InetAddress address = InetAddress.getByName(IP);
 
             while (true) {
-                if(queue.isEmpty() == false){
+                if(queue.isEmpty() == false && queue.peek().equals("next") == false){
                     String command = queue.poll();
                     if(command.equals("poll")){
                         String message = "buzz " + clientID;
@@ -100,16 +120,18 @@ public class PlayerSendReceive {
                         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, UDP_PORT);
                         udpSocket.send(packet);
                         System.out.println("UDP Sent: " + message);
-                    }else if(answering && finalAnswer > 0 && finalAnswer < 5){
-                        String message = "answer " + clientID + " " + finalAnswer;
-                        byte[] buffer = message.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, UDP_PORT);
-                        udpSocket.send(packet);
-                        System.out.println("UDP Sent: " + message);
-                    }
-                    else{
+                    }else{
                         System.out.println("Unrecognized command");
                     }
+                    
+                }
+                if(answering && finalAnswer > 0 && finalAnswer < 5){
+                    String message = "answer " + clientID + " " + finalAnswer;
+                    byte[] buffer = message.getBytes();
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, UDP_PORT);
+                    udpSocket.send(packet);
+                    System.out.println("UDP Sent: " + message);
+                    answering = false;
                 }
 
                 

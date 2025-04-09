@@ -96,12 +96,10 @@ public class ClientWindow implements ActionListener
 			// TODO Finalize polling behavior
 			poll.setEnabled(false);
 			finalAnswer = 0;
-
 		} else if (input.equals("Submit")) {
 			// TODO Finalize answer-submitting behavior
 			submit.setEnabled(false);
 			finalAnswer = answer;
-
 		} else {
 			for (int i = 0; i < options.length; i++) {
 				if (input.equals(options[i].getText())) {
@@ -110,6 +108,21 @@ public class ClientWindow implements ActionListener
 				}
 			}
 		}
+		
+		// test code below to demo enable/disable components
+		// DELETE THE CODE BELOW FROM HERE***
+		// if(poll.isEnabled())
+		// {
+		// 	poll.setEnabled(false);
+		// 	submit.setEnabled(true);
+		// }
+		// else
+		// {
+		// 	poll.setEnabled(true);
+		// 	submit.setEnabled(false);
+		// }
+		
+		// question.setText("Q2. This is another test problem " + random.nextInt());
 		
 		// you can also enable disable radio buttons
 //		options[random.nextInt(4)].setEnabled(false);
