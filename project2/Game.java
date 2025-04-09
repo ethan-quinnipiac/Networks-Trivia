@@ -110,6 +110,8 @@ public class Game {
     // Start the answering timer
     public void startAnsweringTimer(Player player) {
         pollingTimerFuture.cancel(true);
+        isAnsweringActive = true;
+        ((TimerCode) clientWindow.clock).setTime(ANSWER_TIMER_SECONDS);
         pollingTimerFuture = timerExecutor.schedule(() -> {
             if (isAnsweringActive) {
                 isAnsweringActive = false;

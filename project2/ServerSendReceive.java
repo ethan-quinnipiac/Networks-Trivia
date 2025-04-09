@@ -30,12 +30,13 @@ public class ServerSendReceive {
     };
 
     private static final ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<>();
-    private static int rightAnswer = 1;
-    private static int questionCount = 2;
+    
+    private static int questionCount = 1;
     private static int questionMax = 21;
     private static int[] scores = {1, 0, 1, 1};
     private static boolean inProgress = true;
     private static Question[] questions = QuestionMaker.makeQuestions();
+    private static int rightAnswer = questions[0].getCorrectOptionIndex() + 1;
 
     public static void main(String[] args) {
         ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -56,6 +57,7 @@ public class ServerSendReceive {
 
                 String received = new String(packet.getData(), 0, packet.getLength());
                 String[] segmented = received.split(" ");
+                //Checks for received messages from all clients. Every client message is formatted with "command" "clientID"
                 if(segmented[0].equals("buzz") && hasSent == false){
                     System.out.println("received from " + segmented[1]);
                     queue.offer("ack " + segmented[1]);
@@ -100,6 +102,8 @@ public class ServerSendReceive {
                          PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
                         System.out.println("Connected to client " + clientIP);
+                        
+                        //Catches client up to most recent question if they're joining mid game
                         if(inProgress){
                             out.println("catchup " + 2 + " " + questionCount);
                         }
@@ -107,6 +111,7 @@ public class ServerSendReceive {
                         while (true) {
                             Thread.sleep(50);
 
+                            //checks if the queue is empty, then performs the prerequisite step based on what's at the head
                             if(queue.isEmpty() == false){
                                 String step = queue.poll();
                                 System.out.println("trying to send");
@@ -126,7 +131,7 @@ public class ServerSendReceive {
                                 }else if(stepSplit[0].equals("next")){
                                     out.println("next " + (questionCount + 1));
                                     questionCount += 1;
-                                    rightAnswer = questions[questionCount].getCorrectOptionIndex();
+                                    rightAnswer = questions[questionCount].getCorrectOptionIndex() + 1;
                                 }else if(stepSplit[0].equals("total")){
                                     String toSend = "total";
                                     for(int i = 0; i < playerCount; i++){
@@ -138,6 +143,7 @@ public class ServerSendReceive {
                         }
 
                     } catch (Exception e) {
+                        //Tries reconnecting if no client is found, tries when client disconnects too
                         System.out.println("Could not connect to " + clientIP + ", retrying in 3s");
                         try {
                             Thread.sleep(3000);
