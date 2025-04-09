@@ -64,10 +64,10 @@ public class ServerSendReceive {
                     try (Socket socket = new Socket(clientIP, TCP_PORT);
                          PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
-                        System.out.println("Server: Connected to client TCP at " + clientIP + ":" + TCP_PORT);
+                        System.out.println("Connected to client " + clientIP);
                         
                         while (true) {
-                            Thread.sleep(1000);
+                            Thread.sleep(50);
 
                             if(queue.isEmpty() == false){
                                 String step = queue.poll();
@@ -83,7 +83,7 @@ public class ServerSendReceive {
                         }
 
                     } catch (Exception e) {
-                        System.out.println("Server: Could not connect to " + clientIP + ", retrying in 3s...");
+                        System.out.println("Could not connect to " + clientIP + ", retrying in 3s");
                         try {
                             Thread.sleep(3000);
                         } catch (InterruptedException ignored) {}

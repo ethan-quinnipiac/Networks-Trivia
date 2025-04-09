@@ -24,6 +24,10 @@ public class ClientWindow implements ActionListener
 	
 	private static SecureRandom random = new SecureRandom();
 	
+	public static int answer;
+	public static int finalAnswer = -1;
+
+	
 	// write setters and getters as you need
 	
 	public ClientWindow()
@@ -89,18 +93,24 @@ public class ClientWindow implements ActionListener
 		String input = e.getActionCommand();  
 		switch(input)
 		{
-			case "Option 1":	// Your code here
-								break;
-			case "Option 2":	// Your code here
-								break;
-			case "Option 3":	// Your code here
-								break;
-			case "Option 4":	// Your code here
-								break;
-			case "Poll":		// Your code here
-								break;
-			case "Submit":		// Your code here
-								break;
+			case "Option 1":
+				answer = 1;					
+				break;
+			case "Option 2":
+				answer = 2;	
+				break;
+			case "Option 3":
+				answer = 3;	
+				break;
+			case "Option 4":
+				answer = 4;	
+				break;
+			case "Poll":
+				finalAnswer = 0;
+				break;
+			case "Submit":
+				finalAnswer = answer;
+				break;
 			default:
 								System.out.println("Incorrect Option");
 		}
