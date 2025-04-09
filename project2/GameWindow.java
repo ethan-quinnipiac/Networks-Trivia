@@ -6,12 +6,16 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import project2.Panels.ClientPanel;
+import project2.Panels.ServerPanel;
 import project2.Panels.StartPanel;
 
 public class GameWindow {
     private JFrame window;
     private JPanel cards;
     private CardLayout cardLayout;
+    private ServerPanel serverPanelObject;
+    private ClientPanel clientPanelObject;
     public static final String START_PANEL = "Start Panel";
     public static final String CLIENT_PANEL = "Client Panel";
     public static final String SERVER_PANEL = "Server Panel";
@@ -24,14 +28,17 @@ public class GameWindow {
         cards.setSize(400,400);
         cards.setVisible(true);
         window.getContentPane().add(cards);
+        cardLayout = (CardLayout) cards.getLayout();
 
         JPanel startPanel = new StartPanel(this).getPanel();
-        // JPanel clientPanel = new ClientPanel().getPanel();
-        // JPanel serverPanel = new ServerPanel().getPanel();
-        cards.add(startPanel, START_PANEL);
-        // cards.add(clientPanel, CLIENT_PANEL);
-        // cards.add(serverPanel, SERVER_PANEL);
+        this.clientPanelObject = new ClientPanel();
+        JPanel clientPanel = clientPanelObject.getPanel();
+        this.serverPanelObject = new ServerPanel();
+        JPanel serverPanel = serverPanelObject.getPanel();
 
+        cards.add(startPanel, START_PANEL);
+        cards.add(clientPanel, CLIENT_PANEL);
+        cards.add(serverPanel, SERVER_PANEL);
 
         window.setSize(400, 400);
         window.setBounds(50, 50, 400, 400);
@@ -44,5 +51,13 @@ public class GameWindow {
 
     public void changePanel(String staticName) {
         cardLayout.show(cards, staticName);
+    }
+
+    public ServerPanel getServerPanel() {
+        return this.serverPanelObject;
+    }
+
+    public ClientPanel getClientPanel() {
+        return this.clientPanelObject;
     }
 }

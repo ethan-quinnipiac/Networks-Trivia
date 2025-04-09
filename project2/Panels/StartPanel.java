@@ -51,9 +51,11 @@ public class StartPanel implements ActionListener {
         switch (input) {
             case "Host Game":
                 this.gameWindow.changePanel(GameWindow.SERVER_PANEL);
+                this.gameWindow.getServerPanel().startAccepting();
                 break;
             case "Join Game":
                 this.gameWindow.changePanel(GameWindow.CLIENT_PANEL);
+                this.gameWindow.getClientPanel().claimAnID();
                 break;
             default:
                 break;
