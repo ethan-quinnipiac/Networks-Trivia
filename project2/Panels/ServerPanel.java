@@ -70,6 +70,7 @@ public class ServerPanel implements ActionListener {
                     DataInputStream input = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
                     String clientID = input.readUTF();
                     clientIDs.add(clientID);
+                    clientSockets.put(clientID, clientSocket);
                     this.playerList.setText(clientIDs.toString());
                     this.panel.repaint();
                 } catch (IOException e) {
