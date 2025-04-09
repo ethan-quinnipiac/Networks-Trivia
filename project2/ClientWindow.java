@@ -90,45 +90,34 @@ public class ClientWindow implements ActionListener
 		System.out.println("You clicked " + e.getActionCommand());
 		
 		// input refers to the radio button you selected or button you clicked
-		String input = e.getActionCommand();  
-		switch(input)
-		{
-			case "Option 1":
-				answer = 1;					
-				break;
-			case "Option 2":
-				answer = 2;	
-				break;
-			case "Option 3":
-				answer = 3;	
-				break;
-			case "Option 4":
-				answer = 4;	
-				break;
-			case "Poll":
-				finalAnswer = 0;
-				break;
-			case "Submit":
-				finalAnswer = answer;
-				break;
-			default:
-								System.out.println("Incorrect Option");
+		String input = e.getActionCommand();
+		if (input.equals("Poll")) {
+			finalAnswer = 0;
+		} else if (input.equals("Submit")) {
+			finalAnswer = answer;
+		} else {
+			for (int i = 0; i < options.length; i++) {
+				if (input.equals(options[i].getText())) {
+					answer = i+1;
+					break;
+				}
+			}
 		}
 		
 		// test code below to demo enable/disable components
 		// DELETE THE CODE BELOW FROM HERE***
-		if(poll.isEnabled())
-		{
-			poll.setEnabled(false);
-			submit.setEnabled(true);
-		}
-		else
-		{
-			poll.setEnabled(true);
-			submit.setEnabled(false);
-		}
+		// if(poll.isEnabled())
+		// {
+		// 	poll.setEnabled(false);
+		// 	submit.setEnabled(true);
+		// }
+		// else
+		// {
+		// 	poll.setEnabled(true);
+		// 	submit.setEnabled(false);
+		// }
 		
-		question.setText("Q2. This is another test problem " + random.nextInt());
+		// question.setText("Q2. This is another test problem " + random.nextInt());
 		
 		// you can also enable disable radio buttons
 //		options[random.nextInt(4)].setEnabled(false);
