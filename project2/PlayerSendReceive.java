@@ -75,6 +75,13 @@ public class PlayerSendReceive {
                         answering = true;
                     }else if(receivedArr[0].equals("negative-ack")){
                         System.out.println("negative-ack");
+                    }else if(receivedArr[0].equals("correct")){
+                        System.out.println("correct! +10");
+                        answering = false;
+                        
+                    }else if(receivedArr[0].equals("wrong")){
+                        System.out.println("wrong! -10");
+                        answering = false;
                     }
                 }
                 if(receivedArr[0].equals("next")){
@@ -100,16 +107,18 @@ public class PlayerSendReceive {
                         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, UDP_PORT);
                         udpSocket.send(packet);
                         System.out.println("UDP Sent: " + message);
-                    }else if(answering && finalAnswer > 0 && finalAnswer < 5){
-                        String message = "answer " + clientID + " " + finalAnswer;
-                        byte[] buffer = message.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, UDP_PORT);
-                        udpSocket.send(packet);
-                        System.out.println("UDP Sent: " + message);
-                    }
-                    else{
+                    }else{
                         System.out.println("Unrecognized command");
                     }
+                    
+                }
+                if(answering && finalAnswer > 0 && finalAnswer < 5){
+                    String message = "answer " + clientID + " " + finalAnswer;
+                    byte[] buffer = message.getBytes();
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, UDP_PORT);
+                    udpSocket.send(packet);
+                    System.out.println("UDP Sent: " + message);
+                    answering = false;
                 }
 
                 

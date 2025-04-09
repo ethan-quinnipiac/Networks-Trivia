@@ -23,7 +23,7 @@ public class ServerSendReceive {
     };
 
     private static final ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<>();
-
+    private static int rightAnswer = 1;
 
     public static void main(String[] args) {
         ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -50,6 +50,13 @@ public class ServerSendReceive {
                     hasSent = true;
                 }else if(segmented[0].equals("buzz") && hasSent == true){
                     queue.offer("negative-ack " + segmented[1]);
+                }else if(segmented[0].equals("answer")){
+                    System.out.println("received answer");
+                    if(segmented[2].equals(Integer.toString(rightAnswer))){
+                        queue.offer("correct " + segmented[1]);
+                    }else{
+                        queue.offer("wrong " + segmented[1]);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -72,12 +79,19 @@ public class ServerSendReceive {
                             if(queue.isEmpty() == false){
                                 String step = queue.poll();
                                 System.out.println("trying to send");
-                                if(step.split(" ")[0].equals("ack")){
+                                String[] stepSplit = step.split(" ");
+                                if(stepSplit[0].equals("ack")){
                                     out.println("ack " + step.split(" ")[1]);
                                     System.out.println("sent out ack");
-                                }else if(step.split(" ")[0].equals("negative-ack")){
+                                }else if(stepSplit[0].equals("negative-ack")){
                                     out.println("negative-ack " + step.split(" ")[1]);
                                     System.out.println("sent out negative-ack");
+                                }else if(stepSplit[0].equals("correct")){
+                                    out.println("correct " + stepSplit[1]);
+                                    System.out.println("sent out right");
+                                }else if(stepSplit[0].equals("wrong")){
+                                    out.println("wrong " + stepSplit[1]);
+                                    System.out.println("sent out wrong");
                                 }
                             }
                         }
