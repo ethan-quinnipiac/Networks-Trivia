@@ -53,7 +53,7 @@ public class ClientWindow implements ActionListener
 
 		timer = new JLabel("TIMER");  // represents the countdown shown on the window
 		timer.setBounds(250, 250, 100, 20);
-		clock = new TimerCode(30);  // represents clocked task that should run after X seconds
+		clock = new TimerCode(15);  // represents clocked task that should run after X seconds
 		Timer t = new Timer();  // event generator
 		t.schedule(clock, 0, 1000); // clock is called every second
 		window.add(timer);
@@ -92,13 +92,18 @@ public class ClientWindow implements ActionListener
 		// input refers to the radio button you selected or button you clicked
 		String input = e.getActionCommand();
 		if (input.equals("Poll")) {
+			// Your code here
+			// TODO Finalize polling behavior
+			poll.setEnabled(false);
 			finalAnswer = 0;
 		} else if (input.equals("Submit")) {
+			// TODO Finalize answer-submitting behavior
+			submit.setEnabled(false);
 			finalAnswer = answer;
 		} else {
 			for (int i = 0; i < options.length; i++) {
 				if (input.equals(options[i].getText())) {
-					answer = i+1;
+					answer = i + 1;
 					break;
 				}
 			}
