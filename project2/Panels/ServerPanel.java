@@ -9,8 +9,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -29,6 +27,8 @@ public class ServerPanel implements ActionListener {
 
     private HashMap<String, Socket> clientSockets;
     private ArrayList<String> clientIDs;
+
+    private ServerLogic serverLogic;
     
     public ServerPanel() {
         checkForClients = true;
@@ -77,7 +77,9 @@ public class ServerPanel implements ActionListener {
                     e.printStackTrace();
                 }
             }
-        }); 
+        });
+
+        this.serverLogic = new ServerLogic(this);
     }
 
     public JPanel getPanel() {
@@ -111,8 +113,7 @@ public class ServerPanel implements ActionListener {
     public void startGame() {
         this.stopAccepting();
         this.drawKillSwitches();
-        // TODO Game logic from server side
-        ExecutorService executor = Executors.newFixedThreadPool(2);
+        this.serverLogic.startGameLogic();
     }
 
     public void drawKillSwitches() {

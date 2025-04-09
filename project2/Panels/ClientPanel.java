@@ -11,8 +11,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import project2.HostIP;
-
 public class ClientPanel implements ActionListener {
     private JPanel panel;
     private JLabel connectionStatus;
