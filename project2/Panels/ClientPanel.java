@@ -43,6 +43,7 @@ public class ClientPanel implements ActionListener {
                     output.writeUTF(clientID);
                     output.flush();
                     this.connectionStatus.setText("Player " + clientID + " is good to go!");
+                    this.panel.repaint();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
