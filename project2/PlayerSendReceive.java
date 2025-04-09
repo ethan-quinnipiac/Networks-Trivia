@@ -22,18 +22,18 @@ public class PlayerSendReceive {
     private static final ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<>();
     private static boolean answering = false;
     private static int finalAnswer = -1234;
-    private static QuestionMaker q = new QuestionMaker();
-    private static Question[] questions = q.makeQuestions();
+    private static Question[] questions = QuestionMaker.makeQuestions();
     private static Player player = new Player(Integer.toString(clientID));
     public static void main(String[] args) {
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        // Thread to receive messages using TCP
+        //Thread to receive messages using TCP
         executor.execute(() -> startTCPReceiver());
 
-        // Thread to send messages using UDP
+        //Thread to send messages using UDP
         executor.execute(() -> startUDPSender());
 
+        //Thread starts the game
         executor.execute(() -> startGame());
     }
 
@@ -45,19 +45,38 @@ public class PlayerSendReceive {
 
         // Create the Game instance
         Game game = new Game(questionPool, clientWindow);
-
+        game.addPlayer(player);
+        game.nextQuestion();
         // Start the game
         try{
             while (true){
+            clientWindow.submit.setEnabled(answering);
+            clientWindow.score.setText("SCORE: " + player.getScore());
             finalAnswer = clientWindow.finalAnswer;
             Thread.sleep(1000);
+            if(answering && !game.isAnsweringActive){
+                game.startAnsweringTimer(player);
+            }
             if(clientWindow.finalAnswer == 0){
                 queue.add("poll");
                 clientWindow.finalAnswer = -1;
             }
-            if(queue.peek() == "next"){
+            if(queue.peek() == "next"){ //checks to see if next question is necessary
                 queue.poll();
                 game.nextQuestion();
+            }else if(queue.peek() != null){ //skips x amount of questions based on game in progress
+                if(queue.peek().split(" ")[0].equals("setquestion")){
+                    int questionCount = Integer.parseInt(queue.poll().split(" ")[1]) - 1;
+                    System.out.println("skipping questions...");
+                    for(int i = 0; i < questionCount; i++){
+                        game.nextQuestion();
+                    }
+                }
+            }
+
+            if(game.isOver){
+                queue.add("score " + clientID + " " + player.getScore());
+                Thread.sleep(9000);
             }
         }
         } catch(InterruptedException e){
@@ -79,7 +98,7 @@ public class PlayerSendReceive {
             while ((received = in.readLine()) != null) {
                 String[] receivedArr = received.split(" ");
                 if(receivedArr.length != 1){
-                if(receivedArr[1].equals(Integer.toString(clientID))){
+                if(receivedArr[1].equals(Integer.toString(clientID)) || receivedArr[0] == "total"){
                     System.out.println("TCP Received: " + received);
                     if(receivedArr[0].equals("ack")){
                         answering = true;
@@ -94,6 +113,15 @@ public class PlayerSendReceive {
                         System.out.println("wrong! -10");
                         player.updateScore(-10);
                         answering = false;
+                    }else if(receivedArr[0].equals("catchup")){
+                        queue.offer("setquestion " + receivedArr[2]);
+                    }
+
+                    if(receivedArr[0].equals("total")){
+                        System.out.println("GAME OVER\nSCORES");
+                        for(int i = 0; i < receivedArr.length; i++){
+                            System.out.println("PLAYER " + (i+1) + " " + receivedArr[i + 1]);
+                        }
                     }
                 }
             }
@@ -112,7 +140,7 @@ public class PlayerSendReceive {
             InetAddress address = InetAddress.getByName(IP);
 
             while (true) {
-                if(queue.isEmpty() == false && queue.peek().equals("next") == false){
+                if(queue.isEmpty() == false && queue.peek().equals("next") == false && queue.peek().split(" ")[0].equals("setquestion") == false){
                     String command = queue.poll();
                     if(command.equals("poll")){
                         String message = "buzz " + clientID;
@@ -120,8 +148,15 @@ public class PlayerSendReceive {
                         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, UDP_PORT);
                         udpSocket.send(packet);
                         System.out.println("UDP Sent: " + message);
-                    }else{
-                        System.out.println("Unrecognized command");
+                    }else if(command.split(" ")[0].equals("score")){
+                        String message = "score " + clientID + " " + player.getScore();
+                        byte[] buffer = message.getBytes();
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, UDP_PORT);
+                        udpSocket.send(packet);
+                    }
+                    
+                    else{
+                        System.out.println("Unrecognized command " + command);
                     }
                     
                 }

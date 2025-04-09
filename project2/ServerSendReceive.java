@@ -23,6 +23,7 @@ public class ServerSendReceive {
     private static final int UDP_PORT = 5000;
     private static final int TCP_PORT = 6000;
     private static final int[] playerIDs = {1, 2, 3, 4};
+    private static final int playerCount = playerIDs.length;
     //list of clients, add more if need more
     private static final String[] clientIPs = {
         "127.0.0.1",
@@ -30,8 +31,10 @@ public class ServerSendReceive {
 
     private static final ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<>();
     private static int rightAnswer = 1;
-    private static int questionCount = 1;
-    private static int questionMax = 20;
+    private static int questionCount = 2;
+    private static int questionMax = 21;
+    private static int[] scores = {1, 0, 1, 1};
+    private static boolean inProgress = true;
     private static Question[] questions = QuestionMaker.makeQuestions();
 
     public static void main(String[] args) {
@@ -70,6 +73,18 @@ public class ServerSendReceive {
                         queue.offer("next");
                         hasSent = false;
                     }
+                }else if(segmented[0].equals("score")){
+                    scores[Integer.valueOf(segmented[1])-1] = Integer.valueOf(segmented[2]);
+                    System.out.println("received score of player " + segmented[1]);
+                    for(int i = 0; i < playerCount; i++){
+                        if(scores[i] == 0){
+                            break;
+                        }
+
+                        if(i == playerCount - 1){
+                            queue.offer("total");
+                        }
+                    }
                 }
             }
         } catch (IOException e) {
@@ -85,6 +100,9 @@ public class ServerSendReceive {
                          PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
                         System.out.println("Connected to client " + clientIP);
+                        if(inProgress){
+                            out.println("catchup " + 2 + " " + questionCount);
+                        }
                         
                         while (true) {
                             Thread.sleep(50);
@@ -106,9 +124,15 @@ public class ServerSendReceive {
                                     out.println("wrong " + stepSplit[1]);
                                     System.out.println("sent out wrong");
                                 }else if(stepSplit[0].equals("next")){
-                                    out.println("next");
+                                    out.println("next " + (questionCount + 1));
                                     questionCount += 1;
-                                    rightAnswer = questions[questionCount].getCorrectOptionIndex() + 1;
+                                    rightAnswer = questions[questionCount].getCorrectOptionIndex();
+                                }else if(stepSplit[0].equals("total")){
+                                    String toSend = "total";
+                                    for(int i = 0; i < playerCount; i++){
+                                        toSend += (" " + scores[i]);
+                                    }
+                                    out.println(toSend);
                                 }
                             }
                         }

@@ -11,14 +11,14 @@ import javax.swing.*;
 
 public class ClientWindow implements ActionListener
 {
-	private JButton poll;
-	private JButton submit;
+	public JButton poll;
+	public JButton submit;
 	private JRadioButton options[];
 	private ButtonGroup optionGroup;
 	private JLabel question;
-	private JLabel timer;
-	private JLabel score;
-	private TimerTask clock;
+	public JLabel timer;
+	public JLabel score;
+	public TimerTask clock;
 	
 	private JFrame window;
 	
@@ -139,6 +139,8 @@ public class ClientWindow implements ActionListener
 		{
 			this.duration = duration;
 		}
+
+		
 		@Override
 		public void run()
 		{
@@ -160,6 +162,10 @@ public class ClientWindow implements ActionListener
 			duration--;
 			window.repaint();
 		}
+
+		public void setTime(int time){
+			this.duration = time;
+		}
 	}
 
 	// this method updates the question and options on the window
@@ -180,6 +186,7 @@ public class ClientWindow implements ActionListener
 
 		// Reset the timer (if needed)
 		timer.setText("15"); // Example: Reset to 15 seconds for polling
+		
 	}
 	
 }

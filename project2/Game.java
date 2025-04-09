@@ -7,6 +7,8 @@ package project2;
 import java.util.*;
 import java.util.concurrent.*;
 
+import project2.ClientWindow.TimerCode;
+
 public class Game {
     // Constants
     private static final int TOTAL_QUESTIONS = 20;
@@ -20,12 +22,13 @@ public class Game {
     private List<Player> players; // List of active players
     private Queue<Question> questions; // Queue of questions
     private int currentQuestionIndex;
-    private boolean isPollingActive;
-    private boolean isAnsweringActive;
+    public boolean isPollingActive;
+    public boolean isAnsweringActive;
+    public static boolean isOver = false;
 
     // Timer Executors
     private ScheduledExecutorService timerExecutor;
-
+    public static ScheduledFuture<?> pollingTimerFuture;
     private ClientWindow clientWindow; // Reference to the ClientWindow
 
     // Constructor
@@ -69,11 +72,14 @@ public class Game {
         currentQuestionIndex++;
         isPollingActive = true;
         isAnsweringActive = false;
+        ((TimerCode) clientWindow.clock).setTime(15);
 
         // Broadcast the question to all players
         broadcastQuestion(currentQuestion);
-
-        // Start the polling timer
+        if(pollingTimerFuture != null && pollingTimerFuture.isDone() == false){
+            pollingTimerFuture.cancel(true);
+        }
+       
         startPollingTimer();
     }
 
@@ -84,7 +90,7 @@ public class Game {
 
     // Start the polling timer
     private void startPollingTimer() {
-        timerExecutor.schedule(() -> {
+        pollingTimerFuture = timerExecutor.schedule(() -> {
             isPollingActive = false;
             handlePollingTimeout();
         }, POLL_TIMER_SECONDS, TimeUnit.SECONDS);
@@ -96,13 +102,15 @@ public class Game {
         // Notify players and move to the next question if no one polled
         if (!isAnsweringActive) {
             broadcastMessage("No responses received. Moving to the next question.");
+            players.get(0).updateScore(TIMEOUT_PENALTY);
             nextQuestion();
         }
     }
 
     // Start the answering timer
-    private void startAnsweringTimer(Player player) {
-        timerExecutor.schedule(() -> {
+    public void startAnsweringTimer(Player player) {
+        pollingTimerFuture.cancel(true);
+        pollingTimerFuture = timerExecutor.schedule(() -> {
             if (isAnsweringActive) {
                 isAnsweringActive = false;
                 penalizePlayerForTimeout(player);
@@ -120,6 +128,7 @@ public class Game {
     // End the game
     private void endGame() {
         System.out.println("Game over! Final scores:");
+        isOver = true;
         for (Player player : players) {
             System.out.println("Player " + player.getId() + ": " + player.getScore() + " points");
         }
