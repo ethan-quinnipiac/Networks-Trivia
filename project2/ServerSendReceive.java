@@ -11,6 +11,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
+/*
+ * Coded by Kyle Macdonald
+ * Prerequisites: IPs set for the clients the server is set to connect to
+ * Output: A server that manages correct answers, polling, and more between players.
+ */
+
 public class ServerSendReceive {
     private static final String selfIP = "127.0.0.1";
     private static final String goalIP = "127.0.0.1";
@@ -24,6 +30,9 @@ public class ServerSendReceive {
 
     private static final ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<>();
     private static int rightAnswer = 1;
+    private static int questionCount = 1;
+    private static int questionMax = 20;
+    private static Question[] questions = QuestionMaker.makeQuestions();
 
     public static void main(String[] args) {
         ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -54,8 +63,12 @@ public class ServerSendReceive {
                     System.out.println("received answer");
                     if(segmented[2].equals(Integer.toString(rightAnswer))){
                         queue.offer("correct " + segmented[1]);
+                        queue.offer("next");
+                        hasSent = false;
                     }else{
                         queue.offer("wrong " + segmented[1]);
+                        queue.offer("next");
+                        hasSent = false;
                     }
                 }
             }
@@ -92,6 +105,10 @@ public class ServerSendReceive {
                                 }else if(stepSplit[0].equals("wrong")){
                                     out.println("wrong " + stepSplit[1]);
                                     System.out.println("sent out wrong");
+                                }else if(stepSplit[0].equals("next")){
+                                    out.println("next");
+                                    questionCount += 1;
+                                    rightAnswer = questions[questionCount].getCorrectOptionIndex() + 1;
                                 }
                             }
                         }

@@ -59,7 +59,7 @@ public class Game {
     }
 
     // Move to the next question
-    private void nextQuestion() {
+    public void nextQuestion() {
         if (currentQuestionIndex >= TOTAL_QUESTIONS) {
             endGame();
             return;
