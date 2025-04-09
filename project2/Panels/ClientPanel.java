@@ -11,8 +11,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import project2.GameWindow;
-
 public class ClientPanel {
     private GameWindow gameWindow;
     private JPanel panel;

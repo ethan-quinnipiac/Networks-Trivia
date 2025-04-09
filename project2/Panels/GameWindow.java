@@ -1,15 +1,10 @@
-package project2;
+package project2.Panels;
 
 import java.awt.CardLayout;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
-import project2.Panels.ClientPanel;
-import project2.Panels.GamePanel;
-import project2.Panels.ServerPanel;
-import project2.Panels.StartPanel;
 
 public class GameWindow {
     private JFrame window;

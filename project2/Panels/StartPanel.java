@@ -7,8 +7,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import project2.GameWindow;
-
 public class StartPanel implements ActionListener {
     private GameWindow gameWindow;
     private JPanel panel;
