@@ -10,7 +10,7 @@ import java.util.List;
 public class Question {
     private String questionText; // The text of the question
     private List<String> options; // List of options for the question
-    private int correctOptionIndex; // Index of the correct option (0-based)
+    private int correctOptionIndex; // Index of the correct option
 
     // Constructor
     public Question(String questionText, List<String> options, int correctOptionIndex) {
