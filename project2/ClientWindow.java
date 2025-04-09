@@ -24,6 +24,10 @@ public class ClientWindow implements ActionListener
 	
 	private static SecureRandom random = new SecureRandom();
 	
+	public static int answer;
+	public static int finalAnswer = -1;
+
+	
 	// write setters and getters as you need
 	
 	public ClientWindow()
@@ -49,7 +53,7 @@ public class ClientWindow implements ActionListener
 
 		timer = new JLabel("TIMER");  // represents the countdown shown on the window
 		timer.setBounds(250, 250, 100, 20);
-		clock = new TimerCode(30);  // represents clocked task that should run after X seconds
+		clock = new TimerCode(15);  // represents clocked task that should run after X seconds
 		Timer t = new Timer();  // event generator
 		t.schedule(clock, 0, 1000); // clock is called every second
 		window.add(timer);
@@ -86,39 +90,39 @@ public class ClientWindow implements ActionListener
 		System.out.println("You clicked " + e.getActionCommand());
 		
 		// input refers to the radio button you selected or button you clicked
-		String input = e.getActionCommand();  
-		switch(input)
-		{
-			case "Option 1":	// Your code here
-								break;
-			case "Option 2":	// Your code here
-								break;
-			case "Option 3":	// Your code here
-								break;
-			case "Option 4":	// Your code here
-								break;
-			case "Poll":		// Your code here
-								break;
-			case "Submit":		// Your code here
-								break;
-			default:
-								System.out.println("Incorrect Option");
+		String input = e.getActionCommand();
+		if (input.equals("Poll")) {
+			// Your code here
+			// TODO Finalize polling behavior
+			poll.setEnabled(false);
+			finalAnswer = 0;
+		} else if (input.equals("Submit")) {
+			// TODO Finalize answer-submitting behavior
+			submit.setEnabled(false);
+			finalAnswer = answer;
+		} else {
+			for (int i = 0; i < options.length; i++) {
+				if (input.equals(options[i].getText())) {
+					answer = i + 1;
+					break;
+				}
+			}
 		}
 		
 		// test code below to demo enable/disable components
 		// DELETE THE CODE BELOW FROM HERE***
-		if(poll.isEnabled())
-		{
-			poll.setEnabled(false);
-			submit.setEnabled(true);
-		}
-		else
-		{
-			poll.setEnabled(true);
-			submit.setEnabled(false);
-		}
+		// if(poll.isEnabled())
+		// {
+		// 	poll.setEnabled(false);
+		// 	submit.setEnabled(true);
+		// }
+		// else
+		// {
+		// 	poll.setEnabled(true);
+		// 	submit.setEnabled(false);
+		// }
 		
-		question.setText("Q2. This is another test problem " + random.nextInt());
+		// question.setText("Q2. This is another test problem " + random.nextInt());
 		
 		// you can also enable disable radio buttons
 //		options[random.nextInt(4)].setEnabled(false);
