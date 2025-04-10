@@ -26,6 +26,7 @@ public class ServerPanel implements ActionListener {
     private JButton startGame;
     private JLabel playerList;
     private JLabel waiting;
+    private HashMap<String, JButton> killSwitches;
 
     private HashMap<String, Socket> clientSockets;
     private ArrayList<String> clientIDs;
@@ -97,7 +98,12 @@ public class ServerPanel implements ActionListener {
         // Kill switch
         else {
             try {
-            this.clientSockets.get(e.getActionCommand().substring(5)).close(); // Close the clients socket
+                String clientID = e.getActionCommand().substring(5);
+                this.clientSockets.get(clientID).close(); // Close the clients socket
+                this.clientIDs.remove(clientID);
+                this.killSwitches.get(clientID).setVisible(false);
+                this.killSwitches.remove(clientID);
+                this.drawKillSwitches();
             } catch (IOException except) {
                 except.printStackTrace();
             }
@@ -113,6 +119,9 @@ public class ServerPanel implements ActionListener {
     }
 
     public void startGame() {
+        this.waiting.setVisible(false);
+        this.startGame.setVisible(false);
+        this.playerList.setBounds(20, 20, 300, 20);
         this.stopAccepting();
         this.drawKillSwitches();
         this.serverLogic.startGameLogic();
@@ -129,15 +138,17 @@ public class ServerPanel implements ActionListener {
     }
 
     public void drawKillSwitches() {
-        this.waiting.setVisible(false);
-        this.startGame.setVisible(false);
-        this.playerList.setBounds(20, 20, 300, 20);
+        for (String id: clientIDs) {
+            this.killSwitches.get(id).setVisible(false);
+        }
+        killSwitches = new HashMap<>();
         int r = 0;
         int c = 0;
         for (String id : clientIDs) {
             JButton killSwitch = new JButton("Kill " + id);
             killSwitch.setBounds(20 + c * 100, 50 + r * 30, 100,30);
             panel.add(killSwitch);
+            killSwitches.put(id, killSwitch);
             c = (c + 1) % 3;
             if (c == 0) {
                 r++;
