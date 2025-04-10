@@ -39,6 +39,7 @@ public class ServerSendReceive {
     private static int rightAnswer = questions[0].getCorrectOptionIndex() + 1;
 
     public static void main(String[] args) {
+        queue.offer("wait 2");
         ExecutorService executor = Executors.newFixedThreadPool(2);
         //Run both UDP receiver and TCP sender in parallel
         executor.execute(() -> startUDPReceiver());
@@ -61,6 +62,11 @@ public class ServerSendReceive {
                 if(segmented[0].equals("buzz") && hasSent == false){
                     System.out.println("received from " + segmented[1]);
                     queue.offer("ack " + segmented[1]);
+                    for(int playerID : playerIDs){
+                        if(playerID != Integer.valueOf(segmented[1])){
+                            queue.offer("wait " + playerID);
+                        }
+                    }
                     hasSent = true;
                 }else if(segmented[0].equals("buzz") && hasSent == true){
                     queue.offer("negative-ack " + segmented[1]);
@@ -138,6 +144,8 @@ public class ServerSendReceive {
                                         toSend += (" " + scores[i]);
                                     }
                                     out.println(toSend);
+                                }else if(stepSplit[0].equals("wait")){
+                                    out.println("wait " + stepSplit[1]);
                                 }
                             }
                         }
