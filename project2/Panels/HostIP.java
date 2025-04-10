@@ -1,4 +1,4 @@
-package project2;
+package project2.Panels;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +8,7 @@ public class HostIP {
     private String hostIP;
 
     public HostIP() {
-        File file = new File(".\\project2\\HostIP.txt");
+        File file = new File(".\\project2\\Panels\\HostIP.txt");
         try {
             Scanner scan = new Scanner(file);
             this.hostIP = scan.nextLine();

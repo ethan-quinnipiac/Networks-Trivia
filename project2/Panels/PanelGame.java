@@ -1,15 +1,25 @@
-package project2;
-/*
- * Ethan Lanier
- * This is the Game class to manage the players and flow of the game
+package project2.Panels;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import project2.Panels.GamePanel.TimerCode;
+import project2.Player;
+import project2.Question;
+
+/**
+ * John Caceres
+ * 
+ * Panel version of Game class, modified from Ethan.
+ * Only necessary to base it off of GamePanel instead of ClientWindow.
  */
-
-import java.util.*;
-import java.util.concurrent.*;
-
-import project2.ClientWindow.TimerCode;
-
-public class Game {
+public class PanelGame {
     // Constants
     private static final int TOTAL_QUESTIONS = 20;
     private static final int POLL_TIMER_SECONDS = 15;
@@ -27,17 +37,17 @@ public class Game {
     // Timer Executors
     private ScheduledExecutorService timerExecutor;
     public static ScheduledFuture<?> pollingTimerFuture;
-    private ClientWindow clientWindow; // Reference to the ClientWindow
+    private GamePanel gamePanel; // Reference to the GamePanel
 
     // Constructor
-    public Game(List<Question> questionPool, ClientWindow clientWindow) {
+    public PanelGame(List<Question> questionPool, GamePanel gamePanel) {
         this.players = new ArrayList<>();
         this.questions = new LinkedList<>(questionPool);
         this.currentQuestionIndex = 0;
         this.isPollingActive = false;
         this.isAnsweringActive = false;
         this.timerExecutor = Executors.newScheduledThreadPool(1);
-        this.clientWindow = clientWindow; // Initialize the ClientWindow
+        this.gamePanel = gamePanel; // Initialize the GamePanel
     }
 
     // Add a player to the game
@@ -70,7 +80,7 @@ public class Game {
         currentQuestionIndex++;
         isPollingActive = true;
         isAnsweringActive = false;
-        ((TimerCode) clientWindow.clock).setTime(15);
+        ((TimerCode) gamePanel.clock).setTime(15);
 
         // Broadcast the question to all players
         broadcastQuestion(currentQuestion);
@@ -83,7 +93,7 @@ public class Game {
 
     // Broadcast a question to the ClientWindow
     private void broadcastQuestion(Question question) {
-        clientWindow.displayQuestion(question); // Update the GUI with the question
+        gamePanel.displayQuestion(question); // Update the GUI with the question
     }
 
     // Start the polling timer
@@ -109,7 +119,7 @@ public class Game {
     public void startAnsweringTimer(Player player) {
         pollingTimerFuture.cancel(true);
         isAnsweringActive = true;
-        ((TimerCode) clientWindow.clock).setTime(ANSWER_TIMER_SECONDS);
+        ((TimerCode) gamePanel.clock).setTime(ANSWER_TIMER_SECONDS);
         pollingTimerFuture = timerExecutor.schedule(() -> {
             if (isAnsweringActive) {
                 isAnsweringActive = false;

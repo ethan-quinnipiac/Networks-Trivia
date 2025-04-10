@@ -1,28 +1,30 @@
-package project2;
+package project2.Panels;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import project2.Question;
+import project2.QuestionMaker;
 
-/*
- * Coded by Kyle Macdonald
- * Prerequisites: IPs set for the clients the server is set to connect to
- * Output: A server that manages correct answers, polling, and more between players.
+/**
+ * John Caceres
+ * 
+ * Modified off of Kyle's work to match panel format.
  */
-
-public class ServerSendReceive {
+public class ServerLogic {
     private static final int UDP_PORT = 5000;
-    private static final int TCP_PORT = 6000;
-    private static final int[] playerIDs = {1, 2, 3, 4};
-    private static final int playerCount = playerIDs.length;
-    //list of clients, add more if need more
-    private static final String[] clientIPs = {
-        "127.0.0.1",
-    };
+    private ServerPanel serverPanel;
+    private int playerCount;
+    private ArrayList<String> clientIDs;
+    private HashMap<String, Socket> clientSockets;
 
     private static final ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<>();
     
@@ -32,14 +34,14 @@ public class ServerSendReceive {
     private static Question[] questions = QuestionMaker.makeQuestions();
     private static int rightAnswer = questions[0].getCorrectOptionIndex() + 1;
 
-    public static void main(String[] args) {
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        //Run both UDP receiver and TCP sender in parallel
-        executor.execute(() -> startUDPReceiver());
-        executor.execute(() -> startTCPSendersToClients());
+    public ServerLogic(ServerPanel serverPanel) {
+        this.serverPanel = serverPanel;
+        this.clientIDs = new ArrayList<>(this.serverPanel.getClientIDs());
+        this.clientSockets = new HashMap<>(this.serverPanel.getClientSockets());
+        this.playerCount = this.clientIDs.size();
     }
 
-    private static void startUDPReceiver() {
+    private void startUDPReceiver() {
         try (DatagramSocket udpSocket = new DatagramSocket(UDP_PORT)) {
             byte[] buffer = new byte[1024];
             System.out.println("UDP Receiver started on port " + UDP_PORT);
@@ -55,11 +57,6 @@ public class ServerSendReceive {
                 if(segmented[0].equals("buzz") && hasSent == false){
                     System.out.println("received from " + segmented[1]);
                     queue.offer("ack " + segmented[1]);
-                    for(int playerID : playerIDs){
-                        if(playerID != Integer.valueOf(segmented[1])){
-                            queue.offer("wait " + playerID);
-                        }
-                    }
                     hasSent = true;
                 }else if(segmented[0].equals("buzz") && hasSent == true){
                     queue.offer("negative-ack " + segmented[1]);
@@ -77,12 +74,12 @@ public class ServerSendReceive {
                 }else if(segmented[0].equals("score")){
                     scores[Integer.valueOf(segmented[1])-1] = Integer.valueOf(segmented[2]);
                     System.out.println("received score of player " + segmented[1]);
-                    for(int i = 0; i < playerCount; i++){
+                    for(int i = 0; i < this.playerCount; i++){
                         if(scores[i] == 0){
                             break;
                         }
 
-                        if(i == playerCount - 1){
+                        if(i == this.playerCount - 1){
                             queue.offer("total");
                         }
                     }
@@ -93,14 +90,11 @@ public class ServerSendReceive {
         }
     }
 
-    private static void startTCPSendersToClients() {
-        for (String clientIP : clientIPs) {
+    private void startTCPSendersToClients() {
+        for (String clientID : clientIDs) {
             new Thread(() -> {
                 while (true) {
-                    try (Socket socket = new Socket(clientIP, TCP_PORT);
-                         PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
-
-                        System.out.println("Connected to client " + clientIP);
+                    try (PrintWriter out = new PrintWriter(clientSockets.get(clientID).getOutputStream(), true)) {
                         
                         //Catches client up to most recent question if they're joining mid game
                         if(inProgress){
@@ -137,15 +131,13 @@ public class ServerSendReceive {
                                         toSend += (" " + scores[i]);
                                     }
                                     out.println(toSend);
-                                }else if(stepSplit[0].equals("wait")){
-                                    out.println("wait " + stepSplit[1]);
                                 }
                             }
                         }
 
                     } catch (Exception e) {
                         //Tries reconnecting if no client is found, tries when client disconnects too
-                        System.out.println("Could not connect to " + clientIP + ", retrying in 3s");
+                        System.out.println("Could not connect to " + clientID + ", retrying in 3s");
                         try {
                             Thread.sleep(3000);
                         } catch (InterruptedException ignored) {}
@@ -153,5 +145,12 @@ public class ServerSendReceive {
                 }
             }).start();
         }
+    }
+
+    public void startGameLogic() {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        //Run both UDP receiver and TCP sender in parallel
+        executor.execute(() -> startUDPReceiver());
+        executor.execute(() -> startTCPSendersToClients());
     }
 }
