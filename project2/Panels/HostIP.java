@@ -7,7 +7,7 @@ public class HostIP {
 
     public HostIP() {
         try {
-            Scanner scan = new Scanner(HostIP.class.getClassLoader().getResourceAsStream("project2\\Panels\\HostIP.txt"));
+            Scanner scan = new Scanner(HostIP.class.getClassLoader().getResourceAsStream("project2/Panels/HostIP.txt"));
             this.hostIP = scan.nextLine();
             scan.close();
         } catch (NullPointerException e) {
