@@ -101,9 +101,12 @@ public class ServerPanel implements ActionListener {
                 String clientID = e.getActionCommand().substring(5);
                 this.clientSockets.get(clientID).close(); // Close the clients socket
                 this.clientIDs.remove(clientID);
+                playerList.setText(this.clientIDs.toString());
+                this.clientSockets.remove(clientID);
                 this.killSwitches.get(clientID).setVisible(false);
                 this.killSwitches.remove(clientID);
                 this.drawKillSwitches();
+                this.panel.repaint();
             } catch (IOException except) {
                 except.printStackTrace();
             }
@@ -126,7 +129,7 @@ public class ServerPanel implements ActionListener {
         this.drawKillSwitches();
         this.serverLogic.startGameLogic();
         String message = "Starting Game";
-        for (String clientID: clientIDs) {
+        for (String clientID : clientIDs) {
             try {
                 DataOutputStream output = new DataOutputStream(new BufferedOutputStream(clientSockets.get(clientID).getOutputStream()));
                 output.writeUTF(message);
@@ -138,15 +141,17 @@ public class ServerPanel implements ActionListener {
     }
 
     public void drawKillSwitches() {
-        for (String id: clientIDs) {
-            this.killSwitches.get(id).setVisible(false);
-        }
+        if (killSwitches != null)
+            for (String id: clientIDs) {
+                this.killSwitches.get(id).setVisible(false);
+            }
         killSwitches = new HashMap<>();
         int r = 0;
         int c = 0;
         for (String id : clientIDs) {
             JButton killSwitch = new JButton("Kill " + id);
             killSwitch.setBounds(20 + c * 100, 50 + r * 30, 100,30);
+            killSwitch.addActionListener(this);
             panel.add(killSwitch);
             killSwitches.put(id, killSwitch);
             c = (c + 1) % 3;
