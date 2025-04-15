@@ -1,19 +1,16 @@
 package project2.Panels;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Scanner;
 
 public class HostIP {
     private String hostIP;
 
     public HostIP() {
-        File file = new File(".\\project2\\Panels\\HostIP.txt");
         try {
-            Scanner scan = new Scanner(file);
+            Scanner scan = new Scanner(HostIP.class.getClassLoader().getResourceAsStream("project2\\Panels\\HostIP.txt"));
             this.hostIP = scan.nextLine();
             scan.close();
-        } catch (IOException e) {
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
