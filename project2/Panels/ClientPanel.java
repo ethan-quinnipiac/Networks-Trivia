@@ -72,7 +72,7 @@ public class ClientPanel {
     }
     
     public void claimAnID() {
-        clientID = JOptionPane.showInputDialog("Please enter a name for yourself.");
+        clientID = JOptionPane.showInputDialog("Please enter a (unique) name for yourself.");
         this.connectionStatus.setText("Waiting to connect Player " + clientID + " to host.");
         this.TCPConnecter.start();
     }
