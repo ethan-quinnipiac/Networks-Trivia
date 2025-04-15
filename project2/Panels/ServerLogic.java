@@ -57,6 +57,11 @@ public class ServerLogic {
                 if(segmented[0].equals("buzz") && hasSent == false){
                     System.out.println("received from " + segmented[1]);
                     queue.offer("ack " + segmented[1]);
+                    for (String clientID : clientIDs) {
+                        if (!clientID.equals(segmented[1])) {
+                            queue.offer("wait" + clientID);
+                        }
+                    }
                     hasSent = true;
                 }else if(segmented[0].equals("buzz") && hasSent == true){
                     queue.offer("negative-ack " + segmented[1]);
@@ -131,6 +136,8 @@ public class ServerLogic {
                                         toSend += (" " + scores[i]);
                                     }
                                     out.println(toSend);
+                                } else if (stepSplit[0].equals("wait")) {
+                                    out.println("wait" + stepSplit[1]);
                                 }
                             }
                         }

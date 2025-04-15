@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import project2.Panels.GamePanel.TimerCode;
 import project2.Player;
 import project2.Question;
 import project2.QuestionMaker;
@@ -85,6 +86,9 @@ public class ClientLogic {
                     for(int i = 0; i < questionCount; i++){
                         panelGame.nextQuestion();
                     }
+                } else if (queue.peek().equals("wait")) {
+                    queue.poll();
+                    ((TimerCode) gamePanel.clock).setTime(99);
                 }
             }
 
@@ -107,8 +111,8 @@ public class ClientLogic {
             String received;
             while ((received = in.readLine()) != null) {
                 String[] receivedArr = received.split(" ");
-                if(receivedArr.length != 1){
-                if(receivedArr[1].equals(clientID) || receivedArr[0] == "total"){
+                if(receivedArr.length != 1 || receivedArr[0].equals("total")){
+                if(receivedArr[1].equals(clientID) || receivedArr[0].equals("total")){
                     System.out.println("TCP Received: " + received);
                     if(receivedArr[0].equals("ack")){
                         answering = true;
@@ -133,6 +137,12 @@ public class ClientLogic {
                             System.out.println("PLAYER " + (i+1) + " " + receivedArr[i + 1]);
                         }
                     }
+
+                    if (receivedArr[0].equals("wait")) {
+                        answering = false;
+                        queue.offer("wait");
+                        System.out.println("waiting");
+                    }
                 }
             }
                 if(receivedArr[0].equals("next")){
@@ -150,7 +160,7 @@ public class ClientLogic {
             InetAddress address = InetAddress.getByName(ClientPanel.HOST_IP.getHostIP());
 
             while (true) {
-                if(queue.isEmpty() == false && queue.peek().equals("next") == false && queue.peek().split(" ")[0].equals("setquestion") == false){
+                if(queue.isEmpty() == false && queue.peek().equals("next") == false && queue.peek().split(" ")[0].equals("setquestion") == false && queue.peek().split(" ")[0].equals("wait") == false){
                     String command = queue.poll();
                     if(command.equals("poll")){
                         String message = "buzz " + clientID;
